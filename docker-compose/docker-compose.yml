@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  web:
+    restart: always
+    image: nginx
+    ports:
+      - "8084:80"
+    volumes:
+      - ./app/build:/usr/share/nginx/html/web_app
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+  server:
+    build: ./server
+    ports:
+      - "3200:3200"
+
