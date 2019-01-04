@@ -1,6 +1,47 @@
 const express = require('express')
+const bodyParser = require('body-parser')
 const app = express()
+const mongoose = require('mongoose')
 const port = 3200
+
+// Connect to MongoDB
+// mongoose
+//   .connect(
+//     'mongodb://mongo:27017/demo',
+//     { useNewUrlParser: true },
+//   )
+//   .then(() => console.log('MongoDB Connected'))
+//   .catch(err => console.log(err))
+
+const options = {
+  autoIndex: false, // Don't build indexes
+  reconnectTries: 30, // Retry up to 30 times
+  reconnectInterval: 500, // Reconnect every 500ms
+  poolSize: 10, // Maintain up to 10 socket connections
+  // If not connected, return errors immediately rather than waiting for reconnect
+  bufferMaxEntries: 0,
+}
+
+const connectWithRetry = () => {
+  console.log('MongoDB connection with retry')
+  mongoose
+    .connect(
+      'mongodb://mongo:27017/demo',
+      options,
+    )
+    .then(() => {
+      console.log('MongoDB is connected')
+    })
+    .catch(err => {
+      console.log('MongoDB connection unsuccessful, retry after 5 seconds.')
+      setTimeout(connectWithRetry, 5000)
+    })
+}
+
+connectWithRetry()
+
+app.use(bodyParser.json()) // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 app.all('*', function(req, res, next) {
   if (!req.get('Origin')) return next()
@@ -13,6 +54,21 @@ app.all('*', function(req, res, next) {
   next()
 })
 
-app.get('/', (req, res) => res.json({ name: 'superman' }))
+const User = require('./models/User')
+
+app.get('/users', (req, res) => {
+  User.find().then(users => {
+    return res.json({ items: users })
+  })
+  // .catch(err => res.status(404).json({ msg: 'No user found' }))
+})
+
+app.post('/users/add', (req, res) => {
+  console.log(req.body)
+  const newUser = new User({
+    name: req.body.name,
+  })
+  newUser.save().then(item => res.json({ msg: '创建成功' }))
+})
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

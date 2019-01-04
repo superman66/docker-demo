@@ -1,2 +1,2 @@
-## Docker Compose 示例
-通过 Docker Compose 编排一个 Node 服务 + nginx 服务
+## Docker Compose 实践
+通过 Docker Compose 编排一个 Node + Mongodb + nginx 服务。
