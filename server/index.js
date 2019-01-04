@@ -5,14 +5,10 @@ const mongoose = require('mongoose')
 const port = 3200
 
 // Connect to MongoDB
-// mongoose
-//   .connect(
-//     'mongodb://mongo:27017/demo',
-//     { useNewUrlParser: true },
-//   )
-//   .then(() => console.log('MongoDB Connected'))
-//   .catch(err => console.log(err))
-
+/**
+ * https://github.com/docker/hub-feedback/issues/1255#issuecomment-386954442
+ * 为连接数据库添加失败重连的机制，解决 mongodb 无法连接的问题。
+ */
 const options = {
   autoIndex: false, // Don't build indexes
   reconnectTries: 30, // Retry up to 30 times
